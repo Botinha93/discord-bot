@@ -238,5 +238,5 @@ function administra(admmess){
         console.log(error)
     }   
 }
-new Bot(banWord,Help.banned, "banword");
+
 console.log("teste")

@@ -1,78 +1,157 @@
 import quotes from "./quotes.json"
 import {client} from "./index.ts"
 import Discord from 'discord.js';
-import {Bot} from './defBot.ts';
+import {Bot, Commands} from './defBot.ts';
 import fs from "fs"
+import Hook from "./hooks.ts";
+import Config from "./config.json";
 
 
-export class quoteClass{
-    static addQuote(quo : string, user : string | null  = null ){
+export class quoteClass extends Bot{
+    constructor(){
+        super("quote")
+        this.commands.addKey("q!", this.qFunction);
+        this.commands.getKey("q!")!.addKey("me", this.qMeFunction);
+        this.commands.getKey("q!")!.addKey("help", this.help)
+    }
+    help(admin: Boolean, message?: Discord.Message){
+        var builder =  new Discord.EmbedBuilder()
+        .setColor(Discord.Colors.Blurple)
+        .setTitle("Quote Bot")
+        .setTimestamp()
+        if(admin){
+            builder.setDescription("Gets a random quote from the database, X react (❌) to a message as admin to remove it from the global rooster. The following information applies to the **q!** command, acessible to all users.\n\nGets a random quote from the database, star react (⭐) to a message to add/save it to your personal rooster.")
+            .addFields({
+                    "name": "quote",
+                    "value": "Get random quote, usable by any user:\n**q!**\n\n",
+                    inline: true
+                  },
+                  {
+                    "name": "Personal Quote",
+                    "value": "Get random quote, from your own saved ones:\n**q! me**\n\n",
+                    inline: true
+                  },
+                  {
+                    "name": "Help",
+                    "value": "This thing here:\n**q! help**\n\n",
+                    inline: true
+                  })
+        }else{
+            builder.setDescription("Gets a random quote from the database, star react (⭐) to a message on the quotes channel to add/save it to your personal rooster.")
+            .addFields({
+                "name": "quote",
+                "value": "Get random quote, usable by any user:\n**q!**\n\n",
+                inline: true
+              },
+              {
+                "name": "Personal Quote",
+                "value": "Get random quote, from your own saved ones:\n**q! me**\n\n",
+                inline: true
+              },
+              {
+                "name": "Help",
+                "value": "This thing here:\n**q! help**\n\n",
+                inline: true
+              })
+        }
+        if(!(message == undefined)){
+            if( !message.channel.isDMBased() && Hook.hooks.has(message.guild!.id)){
+                Hook.hooks.get(message.guild!.id)!.sendMessage({
+                    avatarURL: Config.quoteAvatar,
+                    username:"Quote Kitten",
+                    embeds:[builder],
+                    
+                },message.channel as Discord.TextChannel)
+                message.delete();
+            }else{
+                if(!message.channel.isDMBased())
+                message.delete();
+                message.reply({embeds:[builder]})
+            }
+        }
+        return builder;
+        
+        }
+    static addQuote(quo : string, id : string, user : string | null  = null ){
         if(user == null){
-            quotes.Quotes.push(quo);
+            quotes.Quotes[id]=quo;
         }else{
             if(quotes[user] == undefined){
-                quotes[user] = Array();
+                quotes[user] = Object();
             }
-            quotes[user].push(quo)
+            quotes[user][id] = (quo)
         }
         fs.writeFile("./quotes.json",JSON.stringify(quotes,null,"\t"), ()=>{})
     }
-    static remove(quo : string, user : string | null  = null ){
+    static remove(id : string, user : string | null  = null ){
         if(user == null){
-            if(quotes.Quotes.lastIndexOf(quo) == -1)
-                quotes.Quotes.splice(quotes.Quotes.lastIndexOf(quo),1);
+            if((quotes.Quotes as Object).hasOwnProperty(id))
+            delete quotes.Quotes[id];
         }else{
             if(quotes[user] == undefined){
-                quotes[user] = Array();
+                quotes[user] = Object();
             }
-            if(quotes[user].lastIndexOf(quo) == -1)
-                quotes[user].splice(quotes[user].lastIndexOf(quo),1);
+            if((quotes[user] as Object).hasOwnProperty(id))
+                delete quotes[user][id];
         }
         fs.writeFile("./quotes.json",JSON.stringify(quotes,null,"\t"), ()=>{})
     }
     static getQuote(n : null | number, user : string | null  = null ){
         if(user == null){
             if(n == null){
-                return quotes.Quotes[Math.floor(Math.random() * (quotes.Quotes.length -1))];
+                return quotes.Quotes[Object.keys(quotes.Quotes)[Math.floor(Math.random() * (Object.keys(quotes.Quotes).length -1))]];
             }
-            return quotes.Quotes[Number(n)];
+            return quotes.Quotes[Object.keys(quotes.Quotes)[Number(n)]];
         }else{
             if(n == null){
-                return quotes[user][Math.floor(Math.random() * (quotes.Quotes.length -1))];
+                return quotes[user][Object.keys(quotes[user])[Math.floor(Math.random() * (Object.keys(quotes[user]).length -1))]];
             }
-            return quotes[user][Number(n)];
+            return quotes[user][Object.keys(quotes[user])[Number(n)]];
         }
     }
-    static processMessage(message : Discord.Message, admin : Boolean){
+    protected qFunction(admin : Boolean, message : Discord.Message){
+        if( !message.channel.isDMBased() && Hook.hooks.has(message.guild!.id)){
+            Hook.hooks.get(message.guild!.id)!.sendMessage({
+                avatarURL: Config.quoteAvatar,
+                username:"Quote Kitten",
+                embeds:[{
+                    color: Discord.Colors.Green,
+                    description: quoteClass.getQuote(null)
+                }],
+                
+            },message.channel as Discord.TextChannel)
+            message.delete();
+        }else{
+            if(!message.channel.isDMBased())
+            message.delete();
+            message.reply(quoteClass.getQuote(null));
+        }
+    }
+    
+    protected qMeFunction(admin : Boolean, message : Discord.Message){
+        if(!message.channel.isDMBased() && Hook.hooks.has(message.guild!.id)){
+            Hook.hooks.get(message.guild!.id)!.sendMessage({
+                avatarURL: Config.quoteAvatar,
+                username:"Quote Kitten",
+                embeds:[{
+                    color: Discord.Colors.Green,
+                    description: quoteClass.getQuote(null, message.author.username)
+                }],
+                
+            },message.channel as Discord.TextChannel)
+            message.delete();
+        }else{
+            if(!message.channel.isDMBased())
+            message.delete();
+            message.reply(quoteClass.getQuote(null, message.author.username))
+        }
+    }
+    protected processM(admin : Boolean, message : Discord.Message){
         if(message.channel.id == process.env.QUOTE_CHANNEL){
             if((message.content.includes("- ") || message.content.includes("> ")) && message.attachments.size == 0){
-                quoteClass.addQuote(message.content);
+                quoteClass.addQuote(message.content,message.id);
                 message.react("⭐");
             }
-        }
-        if(message.content.toLocaleLowerCase().startsWith("q! me") || message.content.toLocaleLowerCase().startsWith("q!me")){
-            message.reply(quoteClass.getQuote(null, message.author.username))
-        }else if(message.content.toLocaleLowerCase().startsWith("q! help")||message.content.toLocaleLowerCase().startsWith("q!help")){
-            message.reply({embeds: [{
-                "title": "Quote",
-                "description": "Gets a random quote from the database, star react (⭐) to a message to add it to your personal the rooster.",
-                "fields": [
-                  {
-                    "name": "quote",
-                    "value": "Get random quote, usable by any user:\n\nq!\n\n"
-                  },
-                  {
-                    "name": "Personal Quote",
-                    "value": "Get random quote, from your own saved ones:\n\nq! me\n\n"
-                  },
-                  {
-                    "name": "Help",
-                    "value": "This thing here:\n\nq! help\n\n"
-                  }
-                ]
-              }]})
-        }else if(message.content.toLocaleLowerCase().startsWith("q!")){
-            message.reply(quoteClass.getQuote(null))
         }
     }
     static async fetchAllMessages() {
@@ -86,7 +165,8 @@ export class quoteClass{
             "vagina",
             "dick"
         ]
-        if(quotes.Quotes.length<1){
+        if(Object.keys(quotes.Quotes).length<1){
+            console.log("\tSetting up quotes");
         const channel = client.channels.cache.get(process.env.QUOTE_CHANNEL!) as Discord.TextChannel;
         let messages = [];
       
@@ -101,7 +181,7 @@ export class quoteClass{
             .then(messagePage => {
               messagePage.forEach(msg => {
                 if((msg.content.includes("- ") || msg.content.includes("> ")) && remove.some(v => !msg.content.toLocaleLowerCase().includes(v)) && msg.attachments.size == 0){
-                    quoteClass.addQuote(msg.content);
+                    quoteClass.addQuote(msg.content, msg.id);
                 }
               });
       
@@ -112,9 +192,9 @@ export class quoteClass{
         console.log("done")
       }
     }
-    static startup(){
+    startUP(){
+        console.log("QUOTE BOT STARTED");
         quoteClass.fetchAllMessages();
-        console.log("Quote started");
         client.on('messageReactionAdd', (reaction_orig, user) => {
             if(reaction_orig.message.channel.id == process.env.QUOTE_CHANNEL)
                 if (reaction_orig.partial) {
@@ -122,15 +202,15 @@ export class quoteClass{
                     try {
                         reaction_orig.fetch().then(reacMessage =>{
                             console.log(reacMessage.emoji.name);
-                            if (reacMessage.emoji.name === ':x:') {
+                            if (reacMessage.emoji.name === '❌') {
                                 if((user.username == "botinha") ||  reacMessage.message.guild!.members.cache.get(user.id)!.permissions.has(Discord.PermissionFlagsBits.Administrator)){
                                     var content = reacMessage.message.content!;
-                                    quoteClass.remove(content);
+                                    quoteClass.remove(reacMessage.message.id);
                                 }
                             }
                             if (reacMessage.emoji.name === '⭐') {
                                 var content = reacMessage.message.content!;
-                                quoteClass.addQuote(content, user.username);
+                                quoteClass.addQuote(content, reacMessage.message.id, user.username);
                             }
                         });
                     } catch (error) {
@@ -139,15 +219,15 @@ export class quoteClass{
                         return;
                     }
                 }else{
-                    if (reaction_orig.emoji.name === ':x:') {
+                    if (reaction_orig.emoji.name === '❌') {
                         if((user.username == "botinha") ||  reaction_orig.message.guild!.members.cache.get(user.id)!.permissions.has(Discord.PermissionFlagsBits.Administrator)){
                             var content = reaction_orig.message.content!;
-                            quoteClass.remove(content);
+                            quoteClass.remove(reaction_orig.message.id);
                         }
                     }
                     if (reaction_orig.emoji.name === '⭐') {
                         var content = reaction_orig.message.content!;
-                        quoteClass.addQuote(content, user.username);
+                        quoteClass.addQuote(content,reaction_orig.message.id, user.username);
                         
                     }
                 }
@@ -160,7 +240,7 @@ export class quoteClass{
                         reaction_orig.fetch().then(reacMessage =>{
                             console.log(reacMessage.emoji.name);
                             if (reacMessage.emoji.name === '⭐') {
-                                var content = reacMessage.message.content!;
+                                var content = reaction_orig.message.id!;
                                 quoteClass.remove(content, user.username);
                             }
                         });
@@ -172,20 +252,11 @@ export class quoteClass{
                 }else{
                     console.log(reaction_orig.emoji.name);
                     if (reaction_orig.emoji.name === '⭐') {
-                        var content = reaction_orig.message.content!;
+                        var content = reaction_orig.message.id!;
                         quoteClass.remove(content, user.username);
                     }
                 }
         });
     }
 }
-
-
-new Bot(quoteClass.processMessage, () =>{
-    return {
-        "name": "Quote",
-        "title": "Quote",
-        "username":"Quote Bot",
-        "description": "Gets a random quote from the database, X react (:x:) to a message as admin to remove it from the global rooster.",
-      }
-}, "quote",quoteClass.startup);
+new quoteClass();

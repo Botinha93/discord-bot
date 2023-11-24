@@ -1,3 +1,22 @@
 {
-    "token":"MTE3NjI4NjE2MjM5MDg4ODQ5OQ.GgT-bV.qvU_DRKKu1DnvQS5eqDNqMusq5vTIfOuqsA0jA"
+	"token": "MTE3NjI4NjE2MjM5MDg4ODQ5OQ.Gzgdxx.NjsOffUx9sSlAZgTo0KsQ9psbrBFR-3U-oLTaI",
+	"channelsNAP": [
+		"1025178975460405248",
+		"1085236832620523621",
+		"1025179005294493736",
+		"1056916834265333770",
+		"1025324088941621258",
+		"1025513148045860925",
+		"1025195451466657822",
+		"1071256825166581873",
+		"1026327654430933112",
+		"1025226770863104010",
+		"1025199344850325629",
+		"1025516880330506292"
+	],
+	"botcontroller": true,
+	"timeout": true,
+	"quote": true,
+	"quoteAvatar": "https://cdn.discordapp.com/attachments/1177370324224970843/1177370337512538172/png-transparent-logo-scalable-graphics-quote-symbol-s-logo-smile-scalable-vector-graphics-thumbnail-1.png?ex=65724292&is=655fcd92&hm=d89792f925ef64261aff7beb5a911593b2a4c26f91c528c4c32d9d17bd55ba54&",
+	"horny": true
 }

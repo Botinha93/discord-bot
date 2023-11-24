@@ -7,34 +7,25 @@ export class Help{
          .setDescription(" Welcome to **The Bot (no name)**! 🎉every bot we create will be added under the same command \"b!\"\n\nThis help screen will give you the basic functionalities. The commands shown should have whatever is inside **<Value_inside>** exchanged for said value, example: \n\n **b! <enable_or_disabled> <bot_name>** will be **b! enable wordban**\n\n")
          .addFields(
            {"name": "Current bots", "value": boots},
-           {"name": "Enable or disable a bot", "value": "b! <enable_or_disabled> <bot_name>"}, 
-           {"name": "Child bot functions", "value": "b! <bot_name>"})
+           {"name": "Enable or disable a bot", "value": "b! <enable_or_disabled> <bot_name>"}, )
          .setTimestamp()
 
     }
-    static uwu(){
-            return                 {
-                  "id": 652627557,
-                  "name": "Timeout",
-                  "title": "Timeout",
-                  "username":"Bot Helper",
-                  "description": "Forces a user message to be translated to a alternative form of speech, does not save the users betwen sessions.\n\nSupported severity: \n· 1. uwu, \n· 2. leet\n· 3. full cat\n\n",
-                  "color": 15409973,
-                  "fields": [
-                    {
-                      "id": 57762242,
-                      "name": "Add",
-                      "value": "Puts a new user in the punishment list:\n\nb! timeout add <UserName_to_be_banned> <Numer_Of_Messages> <Severity>\n\n"
-                    },
-                    {
-                      "id": 349373621,
-                      "name": "Remove",
-                      "value": "Removes a user from the list before the allocated time:\n\nb! timeout remove <UserName_to_be_unbanned>",
-                      "inline": false
-                    }
-                  ]
-                }
-              
+    static uwu() {
+      return new Discord.EmbedBuilder()
+      .setColor(Discord.Colors.Gold)
+      .setTitle("Timeout")
+      .setDescription("Forces a user message to be translated to a alternative form of speech, does not save the users betwen sessions.\n\nSupported severity: \n· 0. uwu, \n· 1. leet\n· 2. full cat\n\n")
+      .addFields({
+          "name": "Add",
+          "value": "Puts a new user in the punishment list:\n\nb! timeout add <UserName_to_be_banned> <Numer_Of_Messages> <Severity>\n\n"
+        },
+        {
+          "name": "Remove",
+          "value": "Removes a user from the list before the allocated time:\n\nb! timeout remove <UserName_to_be_unbanned>",
+          "inline": false
+        })
+      .setTimestamp()
     }
     static banned(){
         return             {
@@ -76,5 +67,18 @@ export class Help{
               ]
             }
           
+    }
+    static RandomInt(max : number) {
+      return Math.floor(Math.random() * max);
+    }
+    static isNumeric(num){
+      return !isNaN(num)
+    }
+    static removerFromArray(array: Array<any>, toRemove){
+      const index = array.indexOf(toRemove);
+      if (index > -1) { // only splice array when item is found
+        array.splice(index, 1); // 2nd parameter means remove one item only
+      }
+      return array;
     }
 }
