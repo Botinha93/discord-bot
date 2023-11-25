@@ -25,13 +25,13 @@ const specialChars = ["!",",",".","?","@","#","~","*"];
 function catIT(text : string){
     var words = text.split(" ")
     var converted ="";
-    for (var i = 0; i < words.length - 1; i++) {
+    for (var i = 0; i < words.length; i++) {
         var t = Array.from(words[i]);
         if(specialChars.includes(t[t.length-1])){
             if(t.length-2 == 0){
                 words[i] = ":cat:"+t[t.length-1];
             }else if(t.length-2 >5){
-                var n = Help.RandomInt(4)+1;
+                var n = Help.RandomInt(3)+2;
                 var cat = concatString(n,(t.length-2 - n));
                 words[i] =catPatter[n][0]+cat+catPatter[n][2]+t[t.length-1];
             }else{
@@ -41,7 +41,7 @@ function catIT(text : string){
             if(t.length-1 == 0){
                 words[i] = ":cat:";
             }else if(t.length-1 >5){
-                var n = Help.RandomInt(4)+1;
+                var n = Help.RandomInt(3)+2;
                 var cat = concatString(n,(t.length-1 - n));
                 words[i] =catPatter[n][0]+cat+catPatter[n][2];
             }else{
@@ -50,6 +50,7 @@ function catIT(text : string){
         }
         converted = converted+words[i]+" ";
     }
+    console.log(text)
     return converted;
 }
 const leetCode = {
@@ -157,6 +158,7 @@ export class timeout extends Bot{
         timeout.send(message);
     }
     private static send(message: Discord.Message<boolean>){
+        if(message.content != "")
         if(database.has(message.author.username)){
             var current = database.get(message.author.username)!;
             if(!message.channel.isDMBased()){
@@ -219,8 +221,12 @@ export class timeout extends Bot{
     }
 
     protected add(admin: Boolean,admessage: Discord.Message<boolean>) {
-        var message = admessage.content.split(" ");
-        if(admin)
+        var split = admessage.content.split(" ");
+        if(admin){
+            var severity = (Help.isNumeric(split[2])? Number(split[2]): 0)
+            var nmessages = (Help.isNumeric(split[1])? Number(split[1]): 0)
+            new user(split[0], nmessages,  severity);
+        }
         return true
     }
     protected del(admin: Boolean,admessage: Discord.Message<boolean>) {

@@ -294,17 +294,22 @@ class horny extends Bot{
         this.commands.addKey("h!", this.getHorny)
     }
     protected processM(admin: Boolean, message: Discord.Message<boolean>) {
+        var autor;
+        if(message.webhookId != null)
+            autor = message.author.username
+        else
+            autor = message.author.id
         if(message.content != undefined && hornyWords.some(v => message.content.toLocaleLowerCase().includes(v))){
-            if(!horny.hornyDB.horny.has(message.author.id))
-                horny.hornyDB.horny.set(message.author.id, 1);
+            if(!horny.hornyDB.horny.has(autor))
+                horny.hornyDB.horny.set(autor, 1);
             else
-                horny.hornyDB.horny.set(message.author.id, horny.hornyDB.horny.get(message.author.id)! + 1);
+                horny.hornyDB.horny.set(autor, horny.hornyDB.horny.get(autor)! + 1);
             fs.writeFile("./horny.json",JSON.stringify({horny:Object.fromEntries(horny.hornyDB.horny),count:horny.hornyDB.count},null,"\t"), ()=>{})
         }
     }
     async getHorny(admin: Boolean, message?: Discord.Message<boolean> | undefined){
-        var map = new Map([...horny.hornyDB.horny.entries()].sort((a, b) => b[1] - a[1]));
-        var keys = [...map.keys()];
+        horny.hornyDB.horny = new Map([...horny.hornyDB.horny.entries()].sort((a, b) => b[1] - a[1]));
+        var keys = [...horny.hornyDB.horny.keys()];
         var build = "";
         for(var i=0; i<keys.length;i++){
             var username = message!.guild!.members.cache.get(keys[i])?.nickname;
@@ -334,11 +339,11 @@ class horny extends Bot{
             else if(i<3)
                 build += "\t### - :flushed: " + username+"\n"
             else if(i<6)
-                build += "\t### - *"+ (i+1) +".* " + username+"\n"
+                build += "\t### - *"+ (i+1) +". " + username+"*\n"
             else if(i<9)
                 build += "\t### - "+ (i+1) +". " + username+"\n"
             else if(i<20)
-                build += "\t - *"+ (i+1) +".* " + username+"\n"
+                build += "\t - *"+ (i+1) +". " + username+"*\n"
             else if(i<99)
                 build += "\t- "+ (i+1) +". " + username+"\n"
             else if(i<1000)
@@ -352,7 +357,7 @@ class horny extends Bot{
         if(!(message == undefined)){
             if( !message.channel.isDMBased() && Hook.hooks.has(message.guild!.id)){
                 Hook.hooks.get(message.guild!.id)!.sendMessage({
-                    avatarURL: Config.quoteAvatar,
+                    avatarURL: Config.hornyAvatar,
                     username:"Horny Kitten",
                     embeds:[builder],
                     allowedMentions: {
@@ -395,7 +400,7 @@ class horny extends Bot{
         if(!(message == undefined)){
             if( !message.channel.isDMBased() && Hook.hooks.has(message.guild!.id)){
                 Hook.hooks.get(message.guild!.id)!.sendMessage({
-                    avatarURL: Config.quoteAvatar,
+                    avatarURL: Config.hornyAvatar,
                     username:"Horny Kitten",
                     embeds:[builder],
                     

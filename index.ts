@@ -10,6 +10,7 @@ import './uwu.ts';
 import { Help } from "./help.js";
 import './quotes.ts';
 import './horny.ts';
+import './naughty.ts';
 export const client=new Discord.Client({ intents: [
     131071,
   ],
@@ -30,13 +31,19 @@ client.on('messageCreate', function onMessage(message){
     if((message.author.username == "botinha") || (!(message.member == null) && message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))){
         isadm = true;
     }
-    
-    if(!config.channelsNAP.includes(message.channel.id) && message.author.id != "1176286162390888499" ){
-        bots.functions.forEach(element => {
-            if(element.enabled){
-                element.func.processMessage(isadm,message);
-            }
-        });
+    var botRunning;
+    try {
+        if(!config.channelsNAP.includes(message.channel.id) && message.author.id != "1176286162390888499" ){
+            bots.functions.forEach(element => {
+                if(element.enabled){
+                    botRunning = element.func.name();
+                    element.func.processMessage(isadm,message);
+                }
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        bots.functions.get(botRunning)?.func.help(isadm,message)
     }
     isadm=false;
 })
