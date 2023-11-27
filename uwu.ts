@@ -2,7 +2,7 @@ import uwuifier from "uwuifier";
 const Uwuifier = new uwuifier();
 import {Bot} from './defBot.ts';
 import { Help } from "./help.js";
-import Discord from 'discord.js';
+import Discord, { EmbedBuilder } from 'discord.js';
 import Hook from "./hooks.ts";
 import Pirate from "./pirate-speak.ts"
 
@@ -93,11 +93,18 @@ function speakLeet(str) {
 
 	return translatedStr;
 }
+
+class message{
+    channel:string
+    text:string
+    severity:number
+}
 export const database =  new Map<string, user>();
+
 export class user{
     static hook;
     id;
-    static messages = new Map();
+    static messages = new Map<string,message>();
     ban;
     toend = 0;
     severity;
@@ -131,7 +138,7 @@ export class user{
         
     }
     store(text, id, messageID){
-        user.messages.set(messageID, {channel:id,text:text});
+        user.messages.set(messageID, {channel:id,text:text,severity:this.severity});
     }
 }
 export class timeout extends Bot{
@@ -174,7 +181,25 @@ export class timeout extends Bot{
                     var collector = messageSent.createReactionCollector();
                     collector.on('collect', (reaction, u) => {
                         var userhook = user.messages.get(reaction.message.id);
-                        Hook.hooks.get(message.guild!.id)?.WebHook.editMessage(reaction.message.id, userhook.text);
+                        var text = "***Trans. "
+                        switch (userhook?.severity) {
+                            case 0:
+                                text +="uwu kitty! "
+                                break;
+                            case 2:
+                                text +="kitten:scream_cat: "
+                                break;
+                            case 1:
+                                text +="1337 H@cker "
+                                break;
+                            case 3:
+                                text +="Arrg Pirate :pirate_flag: "
+                                break;
+                            default:
+                                break;
+                        }
+                        text += reaction.message.author?.displayName+"***\n\n"+userhook?.text
+                        Hook.hooks.get(message.guild!.id)?.WebHook.editMessage(reaction.message.id, {embeds:[new EmbedBuilder().setDescription(text).setColor(Discord.Colors.DarkGold)]});
                     });
                 })
             }else{

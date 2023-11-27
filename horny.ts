@@ -291,7 +291,37 @@ class horny extends Bot{
     static hornyDB = {horny:new Map<string,number>(), count:0};
     constructor(){
         super("horny")
-        this.commands.addKey("h!", this.getHorny)
+        this.commands.addKey("h!", this.getHorny).addKey("me",this.me )
+        
+    }
+    protected me(admin: Boolean, message: Discord.Message<boolean>){
+        var hor = horny.hornyDB.horny.get(message.author.id);
+        if(hor == undefined){
+            hor = horny.hornyDB.horny.get(message.author.displayName);
+        }
+        var builder =  new Discord.EmbedBuilder()
+        .setColor(Discord.Colors.Red)
+        .setTitle(":eggplant: **HORNY PEOPLE** :eggplant: ")
+        .setTimestamp()
+        .setDescription("***:hot_face: "+message.author.displayName+"*** your horny points are:\n### ⠀⠀⠀⠀⠀⠀⠀⠀⠀"+hor + "\nYou are ***" + Math.trunc(100* hor! /horny.hornyDB.count) + "%*** of the server HORNY :eggplant:")
+        if(!(message == undefined)){
+            if( !message.channel.isDMBased() && Hook.hooks.has(message.guild!.id)){
+                Hook.hooks.get(message.guild!.id)!.sendMessage({
+                    avatarURL: Config.hornyAvatar,
+                    username:"Horny Kitten",
+                    embeds:[builder],
+                    allowedMentions: {
+                        parse: []
+                    }
+                    
+                },message.channel as Discord.TextChannel).then(()=>{
+                    //message.delete();
+                })
+            }else{
+                if(!message.channel.isDMBased())
+                message.reply({embeds:[builder]})
+            }
+        }
     }
     protected processM(admin: Boolean, message: Discord.Message<boolean>) {
         var autor;
@@ -300,6 +330,7 @@ class horny extends Bot{
         else
             autor = message.author.id
         if(message.content != undefined && hornyWords.some(v => message.content.toLocaleLowerCase().includes(v))){
+            horny.hornyDB.count ++;
             if(!horny.hornyDB.horny.has(autor))
                 horny.hornyDB.horny.set(autor, 1);
             else
@@ -373,7 +404,6 @@ class horny extends Bot{
                 message.reply({embeds:[builder]})
             }
         }
-        
     }
     startUP() {
         var js = JSON.parse(fs.readFileSync("./horny.json",{ encoding: 'utf8', flag: 'r' }))

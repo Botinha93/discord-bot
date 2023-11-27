@@ -48,3 +48,12 @@ client.on('messageCreate', function onMessage(message){
     isadm=false;
 })
 client.login(process.env.TOKEN);
+
+process.on('uncaughtException', UncaughtExceptionHandler);
+
+function UncaughtExceptionHandler(err)
+{
+    console.log("Uncaught Exception Encountered!!");
+    console.log("err: ", err);
+    console.log("Stack trace: ", err.stack);
+}

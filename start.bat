@@ -1,5 +1,5 @@
 @echo off
 cls
-:start
-tsx index.ts
-goto start
+:inicio
+call tsx index.ts
+goto inicio

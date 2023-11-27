@@ -76,6 +76,35 @@ class naughty extends Bot{
         super("naughty")
         this.commands.addKey("n!", this.getnaughty)
     }
+    protected me(admin: Boolean, message: Discord.Message<boolean>){
+        var hor = naughty.naughtyDB.naughty.get(message.author.id);
+        if(hor == undefined){
+            hor = naughty.naughtyDB.naughty.get(message.author.displayName);
+        }
+        var builder =  new Discord.EmbedBuilder()
+        .setColor(Discord.Colors.Red)
+        .setTitle(":flushed: **Potty mouth** :flushed: ")
+        .setTimestamp()
+        .setDescription("***:face_with_peeking_eye:  "+message.author.displayName+"*** your naughty points are:\n### ⠀⠀⠀⠀⠀⠀⠀⠀⠀"+hor + "\nYou are ***" + Math.trunc(100* hor! /naughty.naughtyDB.count) + "%*** of the server naughty :smiling_imp:")
+        if(!(message == undefined)){
+            if( !message.channel.isDMBased() && Hook.hooks.has(message.guild!.id)){
+                Hook.hooks.get(message.guild!.id)!.sendMessage({
+                    avatarURL: Config.naughtyAvatar,
+                    username:"Naughty Kitten",
+                    embeds:[builder],
+                    allowedMentions: {
+                        parse: []
+                    }
+                    
+                },message.channel as Discord.TextChannel).then(()=>{
+                    //message.delete();
+                })
+            }else{
+                if(!message.channel.isDMBased())
+                message.reply({embeds:[builder]})
+            }
+        }
+    }
     protected processM(admin: Boolean, message: Discord.Message<boolean>) {
         var autor;
         if(message.webhookId != null)
