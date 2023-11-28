@@ -142,7 +142,8 @@ export class user{
     }
 }
 export class timeout extends Bot{
-
+    private teste = 1
+    private _teste = 1
     constructor(){
         super("timeout");
         this.commands.addKey("t!",this.processMessagesOfUser).addKey("add",this.add)
@@ -153,6 +154,7 @@ export class timeout extends Bot{
         if(database.has(message.author.username)){
             timeout.send(message);
         }
+        
     }
     protected processMessagesOfUser(admin: Boolean, message: Discord.Message){
         var split = message.content.split(" ");
@@ -260,4 +262,6 @@ export class timeout extends Bot{
         return true
     }
 }
-new timeout();
+const rteste = new timeout();
+console.log(Object.keys(rteste))
+console.log(rteste["_teste"])
